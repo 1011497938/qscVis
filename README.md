@@ -1,4 +1,4 @@
 # qscVis
 
-#npm i
-#npm start
+npm i  <br /> 
+npm start

@@ -1,4 +1,4 @@
 # qscVis
 
-npm i
+npm i \n
 npm start

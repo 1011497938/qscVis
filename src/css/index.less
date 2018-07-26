@@ -1,0 +1,48 @@
+@font-face {  
+    font-family: 'W9';  
+    src:url('../../font/华康标题宋W9\(P\).TTF')  
+}  
+@font-face {  
+    font-family: 'W3';  
+    src:url('../../font/华康宋体W3-A.TTF')  
+} 
+@font-face {  
+    font-family: 'W5';  
+    src:url('../../font/华康宋体W5\(P\).TTF')  
+} 
+
+@text_size:18px;
+
+.sub-title {
+    font-family: 'W9';
+    font-size: 40px;
+    font-weight: bold;    
+    text-align: left;   
+    color: black;
+}
+.title-text {
+    font-family: 'W3';
+    font-size: @text_size;   
+    color: black;
+    text-indent: 2*@text_size;    
+    line-height: 1.5*@text_size;  
+    text-align: justify;
+    p {
+        margin: 0.5*@text_size;
+    }
+}
+.label-text {
+    font-family: 'W3';
+    color: black;
+    font-size: 14px;
+}
+
+.bottom-text {
+    font-family: 'W3';
+    color: black;
+    font-size: @text_size;   
+    text-align: left;
+    p {
+        margin: 0.5*@text_size;
+    }
+}

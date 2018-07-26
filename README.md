@@ -5,11 +5,6 @@ npm start
 如果初次启动项目或他人使用了新的库，需在此步之前执行 npm i
 ```
 
-项目代码地址：
-```
-HTTP: http://10.76.0.186/gitlab/panrusheng/qscVis.git
-SSH: git@10.76.0.186:panrusheng/qscVis.git
-```
 
 ## 代码命名规则
 组件：驼峰式，例如：YixiangView

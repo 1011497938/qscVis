@@ -151,7 +151,7 @@ export default class FreqLine extends React.Component {
             .attr("y",paddingTop-15)
             .attr("class", "freq-line-ci-" + ci)
             .attr("font-size",fontSize)
-            .attr("font-family","simsun")
+            .attr("font-family","W5")
             .style("opacity", "0")
             .text(ci)
             startX += freq * util /2 + linePadding

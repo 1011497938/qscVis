@@ -2,6 +2,8 @@ import React from 'react';
 import * as d3 from 'd3';
 import Js2WordCloud from 'js2wordcloud';
 import shape from '../../res/shape.png';
+import shape_h from '../../res/shape_豪放.png';
+import shape_w from '../../res/shape_婉约.png';
 import _QB from '../../data/ci_freq/全本.json';
 
 import _HF from '../../data/ci_freq/词风/豪放.json';
@@ -26,6 +28,7 @@ export default class CiCloud extends React.Component {
       '#979896','#777876','#585957','#3b3c3b','#202120','#000000'
     ]
     this.ci_freq = [_QB, [_HF, _WY], [_BS0, _BS1, _BS2, _ND, _NS0, _NS1]]
+    this.category = [['豪放派', '婉约派'],['北宋前期','北宋中期','北宋后期','南渡时期','南宋中期','南宋末期']]
   }
 
   static defaultProps = {
@@ -39,7 +42,7 @@ export default class CiCloud extends React.Component {
     });
   }
 
-  renderSingleCloud(list, cnt, container){
+  renderSingleCloud(list, cnt, container, paibie=[0,0]){
     let ColorRuler = this.ColorRuler
     let min_weight = list.map(item=>item[1]).reduce((x,y)=>x<y?x:y)
     let max_weight = list.map(item=>item[1]).reduce((x,y)=>x>y?x:y)  
@@ -51,6 +54,13 @@ export default class CiCloud extends React.Component {
       .clamp(true)
       .domain(domain)
       .range(ColorRuler)
+    let imageShape
+    if(paibie[0]!==2){
+      imageShape = shape
+    }
+    else{
+      imageShape = paibie[1]===0?shape_h:shape_w
+    }
     const options = {
         fontFamily: 'W9',
         minFontSize: 30 / cnt, 
@@ -64,7 +74,7 @@ export default class CiCloud extends React.Component {
         list: list,
         color: (word, weight, fontSize, distance, theta)=>ciColor(weight),
         backgroundColor: 'rgba(0,0,0,0)',
-        imageShape: shape,
+        imageShape: imageShape,
         rotateRatio: 0
     }
 
@@ -95,12 +105,14 @@ export default class CiCloud extends React.Component {
     this.container.style.alignItems = 'center'
     List.forEach(((list,i)=>{
       let container = this.container.childNodes[i]
+      container.style.position = 'relative'
+      container.style.textAlign = 'center'
       let scale
       switch(List.length){
         case 2:
-          container.style.height = "80%"
-          container.style.width = "40%"
-          container.style.margin = "5%"
+          container.style.height = "70%"
+          container.style.width = "46%"
+          container.style.margin = "2%"
           scale = 0.7
           break
 
@@ -111,7 +123,17 @@ export default class CiCloud extends React.Component {
           scale = 0.3
           break
       }
-    this.renderSingleCloud(list, List.length*scale, container)
+      this.renderSingleCloud(list, List.length*scale, container, [List.length,i])
+      let text = container.appendChild(document.createElement("div"))
+      let content = List.length === 2 ? this.category[0][i] : this.category[1][i] 
+      text.innerHTML = content
+      text.style.fontFamily = 'W5'
+      text.style.fontWeight = 'bold'
+      text.style.fontSize = '15px'
+      text.style.position = 'absolute'
+      text.style.marginLeft = '45%'
+      text.style.marginBottom = '-8%'
+      text.style.bottom = '0'
     }))
   }
 
@@ -156,13 +178,13 @@ export default class CiCloud extends React.Component {
             position:'relative',
             top: '10px',
             left: '650px',
-            fontFamily: 'W3',
+            fontFamily: 'W5',
             fontSize: '14px',
           }}> 
         <RadioGroup onChange={this.onRadioChange} value={this.state.value}>
-          <Radio value={0}>全本&nbsp;&nbsp;</Radio>
-          <Radio value={1}>按词风&nbsp;&nbsp;</Radio>
-          <Radio value={2}>按年代</Radio>
+          <Radio value={0}>{this.props.isZh? '全本' : 'All'}&nbsp;&nbsp;</Radio>
+          <Radio value={1}>{this.props.isZh? '按词风' : 'Style'}&nbsp;&nbsp;</Radio>
+          <Radio value={2}>{this.props.isZh? '按年代' : 'Time'}</Radio>
         </RadioGroup>
         </div>    
       </div>

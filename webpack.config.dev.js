@@ -1,5 +1,8 @@
 //webpack开发配置文件
 const path = require('path');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+// const AnalyzeWebpackPlugin = require('analyze-webpack-plugin').default
+
 module.exports = {
   entry: [
     'react-hot-loader/patch',
@@ -7,9 +10,18 @@ module.exports = {
   ],
   output: {
     path: path.join(__dirname, "dist/"),
-    filename: "bundle.js",
+    filename: '[name].[hash].js',
+    chunkFilename: '[name].[chunkhash].js'
   },
+  devtool: 'inline-source-map',
   mode: "development",
+  plugins: [
+    new HtmlWebpackPlugin({
+    filename: 'index.html',
+    template: path.join(__dirname, 'src/index.html')
+    }),
+    // new AnalyzeWebpackPlugin(), // 默认生成 analyze.html
+  ],
   //webpack-dev-server
   devServer: {
     contentBase: path.join(__dirname, './dist'),
@@ -17,7 +29,7 @@ module.exports = {
     host:"127.0.0.1",
     historyApiFallback: true,
     proxy: {
-      "/api": "http://localhost:3000"
+      "/api": "http://127.0.0.1:4000"
     }
   },
   //module-name-alias-setting
@@ -25,6 +37,7 @@ module.exports = {
     alias : {
       pages: path.join(__dirname, 'src/pages'),
       component: path.join(__dirname, 'src/component'),
+      component_mobile: path.join(__dirname, 'src/component_mobile'),
       router: path.join(__dirname, 'src/router'),
       store: path.join(__dirname, 'src/store'),
       actions: path.join(__dirname, 'src/redux/actions'),
@@ -41,7 +54,15 @@ module.exports = {
         include: path.join(__dirname, 'src')
       },
       {
-        test: /\.(css|less)$/,
+        test: /\.(css)$/,
+        use: [{
+            loader: "style-loader" // creates style nodes from JS strings
+        }, {
+            loader: "css-loader" // translates CSS into CommonJS
+        }]
+      },
+      {
+        test: /\.(less)$/,
         use: [{
             loader: "style-loader" // creates style nodes from JS strings
         }, {
@@ -54,7 +75,11 @@ module.exports = {
         test: /\.(png|jpg|gif|ttf|TTF)$/,
         use: [
           {
-            loader: 'url-loader'
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: 'media/[name].[hash:8].[ext]',
+            },
           }
         ]
       }, 
@@ -62,7 +87,11 @@ module.exports = {
         test: /\.(mp3|ogg)$/,
         use: [
           {
-            loader: 'file-loader'
+            loader: 'file-loader',
+            options: {
+              limit: 10000,
+              name: 'media/[name].[hash:8].[ext]',
+            },
           }
         ]
       },   

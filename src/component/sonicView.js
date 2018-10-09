@@ -1,72 +1,45 @@
 import React from 'react';
 import * as d3 from 'd3';
-import { Select } from 'antd';
+import { Select, Button} from 'antd';
 import data_for_sonic_view from '../../data/data_for_sonic_view.json';
 import AUDIOS from '../../data/audio_for_ci.json';
-
-import AiHong from '../../res/imageSVG/哀鸿.svg';
-import Chan from '../../res/imageSVG/蝉.svg';
-import DengGao from '../../res/imageSVG/登高.svg';
-import DuJuan from '../../res/imageSVG/杜鹃.svg';
-import JinLing from '../../res/imageSVG/金陵.svg';
-import Jiu from '../../res/imageSVG/酒.svg';
-import Ju from '../../res/imageSVG/菊.svg';
-import Lan from '../../res/imageSVG/兰.svg';
-import Liu from '../../res/imageSVG/柳.svg';
-import LiuChao from '../../res/imageSVG/六朝.svg';
-import Lou from '../../res/imageSVG/楼.svg';
-import Ma from '../../res/imageSVG/马.svg';
-import Mei from '../../res/imageSVG/梅.svg';
-import QiangDi from '../../res/imageSVG/羌笛.svg';
-import QinSe from '../../res/imageSVG/琴瑟.svg';
-import QingNiao from '../../res/imageSVG/青鸟.svg';
-import ShaOu from '../../res/imageSVG/沙鸥.svg';
-import Shui from '../../res/imageSVG/水.svg';
-import Song from '../../res/imageSVG/松.svg';
-import WuTong from '../../res/imageSVG/梧桐.svg';
-import XiaoXiang from '../../res/imageSVG/潇湘.svg';
-import Xue from '../../res/imageSVG/雪.svg';
-import Yue from '../../res/imageSVG/月.svg';
-import Yun from '../../res/imageSVG/云.svg';
-import ChangTing from '../../res/imageSVG/长亭.svg';
-import Zhou from '../../res/imageSVG/舟.svg';
-import Zhu from '../../res/imageSVG/竹.svg';
-
+import $ from 'jquery';
 const Option = Select.Option;
-const COLORS = {"喜":"rgb(247,78,112)", "乐":"rgb(253,206,62)", "思":"rgb(60,182,117)", "忧":"#00f5ff", "悲":"rgb(81,100,182)", "惧":"#ffffff", "怒":"rgb(126,99,94)"};
-const CIPAIS = ["鹧鸪天","苏幕遮","清平乐","浣溪沙","蝶恋花"];
-const TRANSFORMS = {
-    "水": "translate(0,27) scale(1.2)",
-    "马": "translate(0,10)",
-    "酒": "translate(0,3) scale(1.5)",
-    "云": "scale(1.2)",
-    "楼": "translate(0,-8) scale(1.2)",
-    "竹": "translate(0,-8) scale(1.2)",
-    "梅": "translate(0,-8) scale(1.2)",
-    "雪": "translate(0,2) scale(1.5)",
-    "月": "translate(0,-5) scale(0.8)",
-    "兰": "translate(0,9) scale(2)",
-    "潇湘": "translate(0,9) scale(2)",
-    "长亭": "translate(0,15) scale(1.5)",
-    "梧桐": "scale(1.5)",
-    "蝉": "translate(0,26) scale(0.5)",
-    "云": "translate(0,-3) scale(1.1)",
-    "杜鹃": "translate(0,23)",
+const base_x = 200;
+const COLORS = {"喜":"#EC5737", "怒":"#5D513B", "哀":"#163471", "乐":"#F0C239", "思":"#339999"};
+const CIPAIS = ["浣溪沙", "水调歌头", "鹧鸪天", "菩萨蛮", "满江红", "临江仙", "西江月", "念奴娇", "蝶恋花", "减字木兰花", "点绛唇", "清平乐", "贺新郎", "满庭芳", "虞美人", "渔家傲", "卜算子", "踏莎行", "鹊桥仙", "浪淘沙", "青玉案", "江城子", "定风波", "永遇乐", "醉花阴", "苏幕遮", "雨霖铃"]
+const ofs_yx = {
+    '酒':15,
+    '云':-30,
+    '月':-20,
+    '水':40,
+    '楼':-4,
+    '梧桐':-14,
+    '菊':-7,
+    '兰':25,
+    '梅':-15,
+    '雪':16,
+    '舟':20,
+    '柳':-15,
+    '马':-5,
+    '竹':6
 }
-
 export default class SonicView extends React.Component {
 	constructor() {
         super();
         let datac = CIPAIS
+        this.audio = undefined
 		this.state = {
             selectedCipai: 0,
             data: data_for_sonic_view[datac[0]],
             dataOfCipai: datac,
+            isPlay: [true, true, true]
         };
+        this.timeoutList = [[],[],[]]
 	}
 
 	static defaultProps = {
-		width: 1200,
+		width: 1500,
 		height: 1000,
 		text: ''
     }
@@ -75,12 +48,13 @@ export default class SonicView extends React.Component {
         this.paintAll();
     }
     
-    componentDidUpdate() {
-        this.paintAll();
+    componentDidUpdate(prevProps, prevState) {
+        if(prevState.isPlay === this.state.isPlay){
+            this.paintAll();
+        }
     }
     
     paintAll() {
-        //d3.select(this.container).selectAll("svg > *").remove();
         d3.select(this.container).select("#sv_svg").remove();
         d3.select(this.container)
             .append('svg')
@@ -89,18 +63,23 @@ export default class SonicView extends React.Component {
             .attr('id', "sv_svg");
 
         this.state.data.map((d, i) => this.paintLine(d,i));
-        //d3.select(this.container).select("#sv_svg").attr("transform", "translate(200,0)")
     }
 
     paintLine(data, index) {
-        const setState = this.setState.bind(this);
         let svg = d3.select(this.container).select("#sv_svg");
         let tl = (this.props.width-400)/data["text"].length;
-        let idle_x = 20>tl ? tl : 20, idle_y=350, line_height = 8, base_y = index*idle_y+400;
-        let base_x = 80;
-        let mp3dom = document.getElementById("sv_wav");
-        let defs = svg.append("defs")
+        let idle_x = 20>tl ? tl : 20, idle_y=350, line_height = 4, base_y = index*idle_y+250;
+        let mp3dom = document.getElementById("sv_wav_"+index);
+        let wav = d3.select("#sv_wav_"+index)
+        let a = AUDIOS[this.state.dataOfCipai[this.state.selectedCipai]][index][data["qupai"]]
+        wav.attr("src", () => {
+            return "./"+a;
+        })
 
+        let ofs_x = 0//Math.round((1920 - (data['PZlist'].length)*idle_x) / 2 - base_x - ((1920-this.state.data[0].text.split('/')[1].length*18)/2 - base_x))
+        $('#play_button_'+index).css('transform','translateX('+ofs_x+'px)')
+        
+        let defs = svg.append("defs")     
         //Filter for the outside glow
         let filter = defs.append("filter")
           .attr("width", "300%")
@@ -117,17 +96,13 @@ export default class SonicView extends React.Component {
         let feMerge = filter.append("feMerge");
         feMerge.append("feMergeNode").attr("in","coloredBlur");
         feMerge.append("feMergeNode").attr("in","SourceGraphic");
-
         const overFunc = (d,j) => {
-            console.log("over")
             clearTimeout(this.audio_pause)
             d3.select('#rythm_line').remove()
             d3.select('#rythm_text').remove()
 
-            let a = AUDIOS[this.state.dataOfCipai[this.state.selectedCipai]][data["qupai"]]
             let pz = data["PZlist"]
             let time = data["TIME"]
-            let wav = d3.select("#sv_wav")
             let pos = 0, sep_1 = 0
             pz.slice(0,j).forEach((d,k)=>{
                 if(d == -1){
@@ -136,9 +111,7 @@ export default class SonicView extends React.Component {
                 }
             })
             let sep_2 = pz.slice(j,pz.length-1).indexOf(-1) + j
-            wav.attr("src", () => {
-                return "./"+a;
-            })
+
             mp3dom.currentTime = time[pos]
             mp3dom.play()
             this.audio_pause = setTimeout(()=>{
@@ -147,47 +120,42 @@ export default class SonicView extends React.Component {
                 d3.select('#rythm_text').remove()
 
             }, (time[pos+1] - time[pos]) *　1000)
+
+            let temp = data["text"].slice(2,data["text"].length-1).indexOf('/')+2
+            let huanhang = temp <= j
+            if(sep_1-temp === -1) sep_1 +=1
             d3.select(this.container).select("#sv_svg")
             .append("rect")
             .attr("id","rythm_line")
             .attr("width",15)
             .attr("height",line_height)
-            .attr("fill","orange")
-            .attr("x",sep_1*idle_x+base_x)
+            .attr("fill","#f3f8f1")
+            .attr("opacity", 0.5)
+            .attr("x",sep_1*idle_x+base_x+ ofs_x)
             .attr("y",base_y)
             .style("filter","url(#glow)")
             .transition(
                 d3.transition()
                 .duration((time[pos+1] - time[pos]) *　1000)
             )
-            .attr("x",sep_2*idle_x+base_x - 15)
-            .attr("y",base_y)
+            .attr("x",sep_2*idle_x+base_x - 15 + ofs_x)
 
-            console.log(data["text"].slice(2,data["text"].length-1).indexOf('/')+2 , j)//.indexOf('/'), j)
-            let temp = data["text"].slice(2,data["text"].length-1).indexOf('/')+2
-            let huanhang = temp <= j
             d3.select(this.container).select("#sv_svg")
             .append("rect")
             .attr("id","rythm_text")
             .attr("width",20)
             .attr("height",20)
-            .attr("fill","orange")
+            .attr("fill","#f3f8f1")
             .attr("opacity", 0.5)
-            .attr("x",huanhang ? (sep_1-temp)*20+base_x : sep_1*20+base_x)
-            .attr("y",huanhang ? base_y - 166 : base_y - 188)
+            .attr("x",huanhang ? (sep_1-temp)*18+base_x : sep_1*18+base_x)
+            .attr("y",huanhang ? base_y - 125 : base_y - 165)
             .style("filter","url(#glow)")
             .transition(
                 d3.transition()
                 .duration((time[pos+1] - time[pos]) *　1000)
             )
-            .attr("x",huanhang ? (sep_2-temp - 1)*20+base_x : (sep_2-1)*20+base_x)
-            .attr("y",huanhang ? base_y - 166 : base_y - 188)
+            .attr("x",huanhang ? (sep_2-temp - 1)*18+base_x : (sep_2-1)*18+base_x)
 
-        };
-        const outFunc = (d,j) => {
-            // mp3dom.pause();
-            // clearTimeout(this.audio_pause)
-            // d3.select('#rythm_line').remove()
         };
 
         let text_ci = [];
@@ -205,6 +173,8 @@ export default class SonicView extends React.Component {
                 return base_y - 200;
             })
             .attr("font-size", 20)
+            .attr("font-weight", 'bold')
+            .attr("font-family", "W5")
             .text(this.state.dataOfCipai[this.state.selectedCipai]+(" ("+data["qupai"]+")"));
         svg.selectAll("._sonicviewtext"+index)
             .data(text_ci)
@@ -214,51 +184,38 @@ export default class SonicView extends React.Component {
                 return base_x;
             })
             .attr("y", function(d,j){
-                return base_y - 200 + 20*(j+1) + 10;
+                return base_y - 200 + 40*(j+1) + 10;
             })
-            .attr("font-size", 20)
-            .attr("font-family", "W9")
+            .attr("font-size", 18)
+            .attr("font-weight", 'bold')
+            .attr("font-family", "W5")
             .text((d) => d);
                  
         let keysetQX = [];
         for(let key in data["QXlist"]){
             keysetQX.push(parseInt(key));
         }
-        svg.selectAll("._sonicviewcircle"+index)
-            .data(keysetQX)
-            .enter()
-            .append("circle")
-            .attr("cx",function(d,j){
-                return d*idle_x+base_x;
-            })
-            .attr("cy",function(d,j){
-                return base_y-15;
-            })
-            .attr("r",function(d,j){
-                return 40;
-            })
-            .attr("fill",function(d,j){
-                return COLORS[data["QXlist"][d.toString()]];
-            })
-            .attr("opacity",function(d,j){
-                return 0.6;
-            })
-            // .on("mouseover",overFunc)
-            // .on("mouseout",outFunc);
         
         let keysetYX = [];
-        for(let key in data["YXlist"]){
+        let yx = data["YXlist"]
+        for(let key in yx){
             keysetYX.push(parseInt(key));
         }
+        let pz = data["PZlist"]
+
         keysetYX.map((d, i) => {
-            let ele = d3.select("#_sonicviewimageinner"+index+i);
-            let YX = data["YXlist"][d.toString()];
-            ele.attr("transform", () => "translate(" + (d*idle_x-50-i*100+base_x+idle_x/2) + "," +(base_y-(index+1)*(100)-index*(4)+1) + ")" + (YX in TRANSFORMS ?  " "+TRANSFORMS[YX] : "") )
-            // .on("mouseover",overFunc)
-            // .on("mouseout",outFunc);
+            let ofs_y = ofs_yx[yx[''+d]]
+            ofs_y = ofs_y ? ofs_y : 0
+            let ele = document.querySelector("#_sonicviewimageinner"+index+i)
+            ele.style.position = 'absolute'
+            ele.style.top = ofs_y + base_y-60 + 'px'
+            ele.style.left = d*idle_x+base_x - 30 + ofs_x + 'px'
         })
 
-        svg.selectAll("._sonicviewline"+index)
+        svg
+        .append("g")
+        .attr("transform", 'translate('+ofs_x+',0)')
+        .selectAll('rect')
         .data(data["PZlist"])
         .enter()
         .append("rect")
@@ -280,80 +237,123 @@ export default class SonicView extends React.Component {
              return base_y;
         })
         .attr("fill",function(d,j){
-            return '#000';
+            if(keysetQX.indexOf(j) > -1){
+                return COLORS[data["QXlist"][j.toString()]]
+            }
+            else{
+                return '#000'
+            }
         })
         .on("mouseover",overFunc)
-        // .on("mouseout",outFunc)
     }
 
-    getImage(YX, id, key){
-        switch(YX){
-            case "哀鸿": return <AiHong width={100} height={100} id={id} key={key} />;
-            case "蝉": return <Chan width={100} height={100} id={id} key={key} />;
-            case "登高": return <DengGao width={100} height={100} id={id} key={key} />;
-            case "杜鹃": return <DuJuan width={100} height={100} id={id} key={key} />;
-            case "金陵": return <JinLing width={100} height={100} id={id} key={key} />;
-            case "酒": return <Jiu width={100} height={100} id={id} key={key} />;
-            case "菊": return <Ju width={100} height={100} id={id} key={key} />;
-            case "兰": return <Lan width={100} height={100} id={id} key={key} />;
-            case "柳": return <Liu width={100} height={100} id={id} key={key} />;
-            case "六朝": return <LiuChao width={100} height={100} id={id} key={key} />;
-            case "楼": return <Lou width={100} height={100} id={id} key={key} />;
-            case "马": return <Ma width={100} height={100} id={id} key={key} />;
-            case "梅": return <Mei width={100} height={100} id={id} key={key} />;
-            case "羌笛": return <QiangDi width={100} height={100} id={id} key={key} />;
-            case "琴瑟": return <QinSe width={100} height={100} id={id} key={key} />;
-            case "青鸟": return <QingNiao width={100} height={100} id={id} key={key} />;
-            case "沙鸥": return <ShaOu width={100} height={100} id={id} key={key} />;
-            case "水": return <Shui width={100} height={100} id={id} key={key} />;
-            case "松": return <Song width={100} height={100} id={id} key={key} />;
-            case "梧桐": return <WuTong width={100} height={100} id={id} key={key} />;
-            case "潇湘": return <XiaoXiang width={100} height={100} id={id} key={key} />;
-            case "雪": return <Xue width={100} height={100} id={id} key={key} />;
-            case "月": return <Yue width={100} height={100} id={id} key={key} />;
-            case "云": return <Yun width={100} height={100} id={id} key={key} />;
-            case "长亭": return <ChangTing width={100} height={100} id={id} key={key} />;
-            case "舟": return <Zhou width={100} height={100} id={id} key={key} />;
-            case "竹": return <Zhu width={100} height={100} id={id} key={key} />;
+    playMusic(i) {
+        let a = this.state.isPlay.concat()
+        a[i] = false;
+        this.setState({isPlay: a})
+        let audio = document.getElementById("sv_wav_"+i)
+        audio.currentTime = 0
+        audio.play()
+        let data = this.state.data[i]
+        let tl = (this.props.width-400)/data["text"].length;
+        let idle_x = 20>tl ? tl : 20, idle_y=350, line_height = 4, base_y = i*idle_y+250;
+        let time = data["TIME"]
+        let pos = [-1]
+        this.timeoutList[i] = []
+        let temp = data["text"].slice(2,data["text"].length-1).indexOf('/')+2
+        for(let k = 0, len = time.length; k < len-1; k++){
+            let pz = data["PZlist"]
+            let pos_0 = pos[k]+1
+            pos.push(pz.slice(pos_0).indexOf(-1)+(pos_0))
+            
+            let huanhang = temp <= pos_0
+            this.timeoutList[i].push(setTimeout(()=>{
+                d3.select('#rythm_line').remove()
+                d3.select('#rythm_text').remove()
+                d3.select(this.container).select("#sv_svg")
+                .append("rect")
+                .attr("id","rythm_line_"+k)
+                .attr("width",15)
+                .attr("height",line_height)
+                .attr("fill","#f3f8f1")
+                .attr("opacity", 0.5)
+                .attr("x",pos_0*idle_x+base_x)
+                .attr("y",base_y)
+                .style("filter","url(#glow)")
+                .transition(
+                    d3.transition()
+                    .duration((time[k+1] - time[k]) *　1000)
+                )
+                .attr("x",pos[k+1]*idle_x+base_x - 15)
+    
+                d3.select(this.container).select("#sv_svg")
+                .append("rect")
+                .attr("id","rythm_text_"+k)
+                .attr("width",20)
+                .attr("height",20)
+                .attr("fill","#f3f8f1")
+                .attr("opacity", 0.5)
+                .attr("x",huanhang ? (pos_0-temp)*18+base_x : pos_0*18+base_x)
+                .attr("y",huanhang ? base_y - 125 : base_y - 165)
+                .style("filter","url(#glow)")
+                .transition(
+                    d3.transition()
+                    .duration((time[k+1] - time[k]) *　1000)
+                )
+                .attr("x",huanhang ? (pos[k+1]-temp - 1)*18+base_x : (pos[k+1])*18+base_x)
+            }, 1000*time[k]))
         }
+        setTimeout(()=>{
+            d3.select('#rythm_line').remove()
+            d3.select('#rythm_text').remove()
+        },1000*time[time.length-1])
+    }
+
+    pauseMusic(i){
+        let a = this.state.isPlay.concat()
+        a[i] = true
+        this.setState({isPlay: a})
+        let audio = document.getElementById("sv_wav_"+i)
+        audio.pause()       
+        this.timeoutList[i].forEach(i=>{
+            clearTimeout(i)
+        }) 
     }
 
 	render() {   
 		return (
+            <div>
+            <Select
+                showSearch
+                style={{
+                    "position":'relative',
+                    "width": '120px',
+                    "top":'10px',
+                    "left": '300px'
+                }}
+                placeholder= {this.state.isZh?"选择词牌":"Select"}
+                optionFilterProp="children"
+                onChange={(value) => {this.setState({
+                    selectedCipai:value, 
+                    data:data_for_sonic_view[this.state.dataOfCipai[value]]
+                })}}
+                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+            >
+                {this.state.dataOfCipai.map((d, i) => {
+                    return <Option value={i} key={i}>{d}</Option>;
+                })}
+            </Select>
             <div 
                 style={{
-                    "opacity": 0.9, 
                     "zIndex":10, 
                     "position":'relative',
                     "width":this.props.width, 
-                    "height":this.props.height,                   
+                    "height":this.props.height,    
+                    // "transform": 'translateX('+((1920-this.state.data[0].text.split('/')[1].length*18)/2 - base_x)+'px)'
+                    "transform": 'translateX('+210+'px)'
                 }}
                 ref={ref => {this.container = ref;}}
             >
-                <Select
-                    showSearch
-                    style={{
-                        "position":'relative',
-                        "width": '100px',
-                        "top":'10px',
-                        "left":this.props.width-460
-                    }}
-                    placeholder="选择词牌"
-                    optionFilterProp="children"
-                    onChange={(value) => {this.setState({
-                        selectedCipai:value, 
-                        data:data_for_sonic_view[this.state.dataOfCipai[value]]
-                    })}}
-                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                >
-                    {this.state.dataOfCipai.map((d, i) => {
-                        return <Option value={i} key={i}>{d}</Option>;
-                    })}
-                </Select>
-                      
-                <audio id="sv_wav" src={""} preload="preload">
-                    Your browser does not support the audio element.
-                </audio>
                 <div 
                     id="sv_svgDiv"
                     style={{
@@ -368,12 +368,35 @@ export default class SonicView extends React.Component {
                         }
                         let res = (<div key={i0}>
                                 {data.map((YX, j) => {
-                                    return this.getImage(YX, "_sonicviewimageinner"+i0+j, j);
+                                    return (
+                                        <img style = {{pointerEvents: 'none'}} id = {"_sonicviewimageinner"+i0+j} key={j} src={require('../../res/sonic-images/' + YX +'.png')} />
+                                    )
                                 })}</div>)
                         return res;
-                    })}   
-                </div>         
-			</div>
+                    })} 
+                </div>
+                {
+                    this.state.data.map((d,i)=>(
+                    <div>
+                        <audio id={"sv_wav_"+i} src={""} preload="auto">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <div
+                            id = {"play_button_"+i} 
+                            style={{
+                                position:"absolute",
+                                left: "10%",
+                                top: 236 + 350*i + "px",
+                            }}>
+                            
+                            <Button key={i} style={{backgroundColor:"#666", borderColor:"#666"}} type="primary" shape="circle" icon={this.state.isPlay[i]?"caret-right":"pause"} onClick={this.state.isPlay[i]?()=>{this.playMusic.bind(this)(i)}:()=>{this.pauseMusic.bind(this)(i)}}></Button>  
+                        </div>
+                    </div>
+                    ))
+                }  
+
+            </div>
+            </div>
 		);
 	}
 }

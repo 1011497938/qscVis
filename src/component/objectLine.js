@@ -1,11 +1,34 @@
-import React, {
-    Component
-} from 'react';
+import React, { Component } from 'react';
 import * as d3 from 'd3';
 import famous_image_emotion from '../../data/famous_image_emotion.json';
-import { resolve } from 'url';
-import { rejects } from 'assert';
-import { font } from "../../font/华康宋体W5(P).TTF"
+import { Tooltip } from 'antd';
+
+const poet_class = {
+    "辛弃疾" : "豪放派",
+    "苏轼" : "豪放派",
+    "刘辰翁" : "豪放派",
+    "刘克庄" : "豪放派",
+    "吴潜" : "豪放派",
+    "朱敦儒" : "豪放派",
+    "张孝祥" : "豪放派",
+    "黄庭坚" : "豪放派",
+    "张元干" : "豪放派",
+    "向子諲" : "豪放派",
+    "晁补之" : "豪放派",
+    "陆游" : "豪放派",
+    "吴文英" : "婉约派",
+    "张炎" : "婉约派",
+    "贺铸" : "婉约派",
+    "晏几道" : "婉约派",
+    "欧阳修" : "婉约派",
+    "柳永" : "婉约派",
+    "周邦彦" : "婉约派",
+    "晏殊" : "婉约派",
+    "秦观" : "婉约派",
+    "姜夔" : "婉约派",
+    "李清照" : "婉约派",
+    "张先" : "婉约派"
+}
 
 export default class ObjectLine extends Component {
     poetArray = []  //所有诗人
@@ -26,7 +49,8 @@ export default class ObjectLine extends Component {
             selectedPoet: "",
             selectedLink: ["", ""],
             imageRaduis: 27,
-            selectedImage: ""
+            selectedImage: "",
+            showImageList: {}
         }
 
         // 数据处理
@@ -115,7 +139,6 @@ export default class ObjectLine extends Component {
                     .innerRadius(innerRadius)
                     .outerRadius(outerRadius);
         
-        // console.log(this.svg.selectAll(".image-emotion-ciricle-" + imageName), imageName)
         var arcs = this.svg.selectAll(".image-emotion-ciricle-" + imageName)
         .data([""])
         .enter()
@@ -230,32 +253,7 @@ export default class ObjectLine extends Component {
         var wyNum = 0;
         var hfNum = 0;
 
-        const poet_class = {
-            "辛弃疾" : "豪放派",
-            "苏轼" : "豪放派",
-            "刘辰翁" : "豪放派",
-            "刘克庄" : "豪放派",
-            "吴潜" : "豪放派",
-            "朱敦儒" : "豪放派",
-            "张孝祥" : "豪放派",
-            "黄庭坚" : "豪放派",
-            "张元干" : "豪放派",
-            "向子諲" : "豪放派",
-            "晁补之" : "豪放派",
-            "陆游" : "豪放派",
-            "吴文英" : "婉约派",
-            "张炎" : "婉约派",
-            "贺铸" : "婉约派",
-            "晏几道" : "婉约派",
-            "欧阳修" : "婉约派",
-            "柳永" : "婉约派",
-            "周邦彦" : "婉约派",
-            "晏殊" : "婉约派",
-            "秦观" : "婉约派",
-            "姜夔" : "婉约派",
-            "李清照" : "婉约派",
-            "张先" : "婉约派"
-        }
+
         // #b9786f
 
         for (let i = 0; i < poet_image_freq.length; i++) {
@@ -372,21 +370,37 @@ export default class ObjectLine extends Component {
                     return "c-" + d.id
                 })
                 .attr("r", function (d) {
-                    return d.children ? 10 : 0;
+                    return d.children ? 6 : 0;
                 })
                 .on("mouseover", function (d, i) {
                     let name = d.id.split(",")[0]
+                    let tmp = {}
+                    let fname = famous_image_emotion[name]
+                    for(let i in fname){
+                        let sum = 0
+                        let fnamei = famous_image_emotion[name][i]
+                        for( j in fnamei){
+                            sum+=fnamei[j]
+                        }
+                        tmp[i] = sum>0
+                    }
                     thisNode.setState({
                         selectedPoet: name,
                         selectedLink: ["", ""],
-                        selectedImage: ""
+                        selectedImage: "",
+                        showImageList: tmp
                     })
                 })
                 .attr("fill", (d,i) => {
-                    let name = d.id.split(",")[0] 
-                    return poet_class[name]==="豪放派"? "#b9786f" : "#848fa0"})
+                    return '#555'
+                    // let name = d.id.split(",")[0] 
+                    // return poet_class[name]==="豪放派"? "#b9786f" : "#848fa0"
+                })
                 .on("mouseout", function (d, i) {
                     // thisNode.setState({selectedPoet : ""})
+                    thisNode.setState({
+                        showImageList: {}
+                    })
                 })
 
 
@@ -401,7 +415,7 @@ export default class ObjectLine extends Component {
                 })
                 .attr("x", 30)
                 .style("text-anchor", "end")
-                .attr("font-family","W9")  //d.id.split(",")[0]
+                .attr("font-family","W7")  //d.id.split(",")[0]
                 .text(function (d) {
                     return d.children ? d.id : ""
                 })
@@ -410,9 +424,18 @@ export default class ObjectLine extends Component {
     render() {
         var thisNode = this
         var renderImage = ()=>{
-            var imageList = []
-            this.imageSet.forEach(function (element, sameElement, set) {
-                imageList.push(<img src={require('../../res/images/' + element +'.png')} width={thisNode.state.imageRaduis*2} height={thisNode.state.imageRaduis*2} id={"objectLine_img_"+element} className="objectLine_img" style={{position:"absolute",zIndex: 1}} key={element} alt={element} title={element}/> )
+            var imageList = [], k = 0
+            this.imageSet.forEach(function (element, i, set) {
+                imageList.push(
+                  <Tooltip
+                    key = {k++} 
+                    title = {element}
+                    visible = {Boolean(thisNode.state.showImageList[element])}
+                    placement = {poet_class[thisNode.state.selectedPoet]==='婉约派'?"top":"bottom"}
+                  >
+                    <img src={require('../../res/images/' + element +'.png')} width={thisNode.state.imageRaduis*2} height={thisNode.state.imageRaduis*2} id={"objectLine_img_"+element} className="objectLine_img" style={{position:"absolute",zIndex: 1}} key={element} alt={element} title={element}/> 
+                  </Tooltip>
+            )
             });
             return imageList;
         }

@@ -1,17 +1,19 @@
 import React from 'react';
 import * as d3 from 'd3';
-import Map from '../../res/map.svg';
+import Nanhai from '../../res/map.svg';
+import Song0 from '../../res/song0.svg';
+import Song1 from '../../res/song1.svg';
 import geoInfo from '../../data/geoinfo/geo_info.json';
 import map from '../../data/china.json';
 import life_experience from '../../data/storyline/life_experience.json';
 import pathList from '../../data/path.json';
 import { observer } from "mobx-react";
 import sStore from 'store/sstore';
-import { TreeSelect } from 'antd';
+import { TreeSelect, Tooltip } from 'antd';
 const SHOW_PARENT = TreeSelect.SHOW_PARENT;
 
-const scale = 1200, t_x = 0.5, t_y = 0.22
-
+const scale = 1200, t_x = 0.45, t_y = 0.20
+const locClr_s = 'rgba(55, 57, 93, 1)', locClr_f = 'rgba(87, 90, 139, 0.55)'
 @observer
 export default class MapView extends React.Component {
   constructor() {
@@ -23,6 +25,7 @@ export default class MapView extends React.Component {
     this.locList = []
     this.locAuthor = []
     this.locCnt = []
+    this.selectedAuthors = []
     this.treeData = [{
       title: '北宋初期',
       value: '0-0',
@@ -171,7 +174,8 @@ export default class MapView extends React.Component {
 
   hlRoute = (route_id)=>{
     d3.selectAll(`#${route_id}`)
-      .attr('opacity',0.5)
+    .attr('visibility', 'visible')
+       
   }
 
   componentDidMount() {
@@ -179,15 +183,27 @@ export default class MapView extends React.Component {
 
     let svg = d3
     .select(this.container)
-    .append('svg')
+    .select('svg')
     .attr('width',width)
     .attr('height',height)
 
     let projection = 
-      d3.geoMercator()
-        .center([106, 37])
-        .scale(scale)
-        .translate([width * t_x, height * t_y])
+    d3.geoMercator()
+      .center([106, 37])
+      .scale(scale)
+      .translate([width * t_x, height * t_y])
+
+    let path = d3.geoPath()
+        .projection(projection)
+    svg.selectAll(".geo_path")
+        .style("pointer-events",'none')
+        .data(map.features)
+        .attr("stroke", 'rgba(0,0,0,0.3)')
+        .attr("stroke-width", 1)
+        .attr("d", function (d) {
+            return path(d);
+        })
+        .attr('fill','rgba(0,0,0,0)')
 
     let getLoc = (query)=>{
       for(let i = 0, len_i = geoInfo.length; i < len_i; i++){
@@ -201,60 +217,103 @@ export default class MapView extends React.Component {
       return 0
     }
 
-    let path = d3.geoPath()
-    .projection(projection);
-    svg.selectAll("path")
-            .data(map.features)
-            .enter()
-            .append("path")
-            .attr("stroke", 'rgba(0,0,0,0.3)')
-            .attr("stroke-width", 1)
-            .attr("d", function (d) {
-                return path(d);
-            })
-            .attr('fill','rgba(0,0,0,0)')
-
     let pathFunc = d3
-    .line()
-    .x(function (d) {
-        return d.x
-    })
-    .y(function (d) {
-        return d.y
-    })
+        .line()
+        .x(function (d) {
+            return d.x
+        })
+        .y(function (d) {
+            return d.y
+        })
 
     let drawLocPoint = (loc)=>{
       let pr = getLoc(loc)
       if(pr){
         let index = this.locList.indexOf(loc)
-        let clr = circleColor(this.locCnt[index])
-        let className = "point"
+        let className = "point point_"+loc
         this.locAuthor[index].forEach(author=>{
           className += (" "+author)
         })
-        svg.append("circle")  
-          .attr("class", className)  
+
+        svg.append('circle')
+          .attr("class", className)
+          .style('pointer-events','none') 
           .attr("cx",pr[0])  
           .attr("cy",pr[1])  
-          .attr("r", 4)
-          .style('fill', clr)
-          .style('fill-opacity', 0.8)
-          .style('stroke', clr)
-          .style('stroke-opacity', 1)
-          .style("filter","url(#glow)")
+          .attr("r", circleRadius(this.locCnt[index]))
+          .style('fill', locClr_f)
+          .style('stroke', locClr_s)
+  
+        svg.select("#dot_"+loc)  
+          .attr("cx",pr[0])  
+          .attr("cy",pr[1])  
+          .attr("r", circleRadius(this.locCnt[index])+2)
+          .style('opacity', '0')
           .on('mouseover',()=>{
-            console.log(loc)
-            d3.selectAll(`.${loc}`)
-            .attr('opacity',0.4)
+            d3.selectAll('.point')
+            .attr('visibility', 'hidden') 
+            if(this.state.authorValue.length === 0){ 
+              for(let i = 0, len_i = pathList.length; i < len_i; i++){
+                let path = pathList[i].path   
+                for(let j = 0, len_j = path.length; j < len_j; j++){
+                  if(path[j].route.indexOf(loc) > -1){
+                    path[j].route.forEach((r)=>{
+                      d3.selectAll(`.point_${r}`)
+                      .attr('visibility', 'visible') 
+                    })
+                  }
+                }
+              }
+              d3.selectAll(`.${loc}`)
+              .attr('visibility', 'visible')
+            }
+            else{
+              for(let i = 0, len_i = pathList.length; i < len_i; i++){
+                let path = pathList[i].path   
+                for(let j = 0, len_j = path.length; j < len_j; j++){
+                  if(path[j].route.indexOf(loc) > -1){
+                    this.selectedAuthors.forEach(a=>{
+                      d3.selectAll(`.${a}`)
+                        .attr('visibility', 'visible')
+                      path[j].route.forEach((r)=>{
+                        d3.selectAll(`.${loc}.route_${a}`)
+                        .attr('visibility', 'visible')
+                      })
+                    })
+                  }
+                }
+              }
+            }
+            let pos = d3.select(".point_"+loc)
           })
           .on('mouseout',()=>{
+  
+            d3.selectAll('.loc_name')
+            .transition(
+              d3.transition()
+              .duration(200)
+            )
+            .remove()
+
             d3.selectAll(`.${loc}`)
-            .attr('opacity',0.0)
+            .attr('visibility', 'hidden')
+
+            if(this.state.authorValue.length === 0){
+              d3.selectAll('.point')
+              .attr('visibility', 'visible') 
+            }
+            else{ 
+              this.selectedAuthors.forEach(a=>{
+                d3.selectAll(`.route_${a}`)
+                .attr('visibility', 'hidden')   
+              })
+            }
+            
           })
       }
     }
 
-    let drawRoute = (route, route_id, route_clr)=>{
+    let drawRoute = (route, name, route_id, paibie)=>{
       let _route = route
       .map(r=>{
         let pos = getLoc(r)
@@ -262,49 +321,32 @@ export default class MapView extends React.Component {
         else return 0
       })
       .filter(r=>r !== 0)
-      let className = "route"
+      let className = "route route_"+ name
       route.forEach(loc=>{
         className += (" "+loc)
       })
+      let clr = paibie === '豪放派' ? 'rgba(185,120,111,0.9)' : 'rgba(132,143,160,0.8)'
       svg.append('path')
+        .style("pointer-events",'none')
         .attr('class',className)
         .attr('id', route_id)
         .attr('d', pathFunc(_route))
-        .attr('stroke', route_clr)
-        .attr('stroke-width', 5)
+        .attr('stroke', clr)
+        .attr('stroke-width', 2)
         .attr('stroke-linecap', "round")
-        .attr('opacity', 0)
         .attr('fill', 'none')
+        .attr('visibility', 'hidden')
+        // .style("filter","url(#glow)")   
     }
 
     for(let i = 0, len = pathList.length; i < len; i++){
       let name = pathList[i].name
       pathList[i].path.forEach((path, j)=>{
-        let route_id = name + j,
-        route_clr = this.author_info[name]['派别'] === '豪放派' ? 'orange' : 'black'
-        drawRoute(path.route, route_id, route_clr)
+        let route_id = name + j
+        drawRoute(path.route, name, route_id, this.author_info[name]['派别'])
       })
     }
 
-    pathList.forEach((author)=>{
-      let name = author.name
-      author.path.forEach((path)=>{
-        path.route.forEach((loc)=>{
-          let index = this.locList.indexOf(loc)
-          if(index === -1){
-            this.locList.push(loc)
-            this.locCnt.push(1)
-            this.locAuthor.push([name])
-          }
-          else {
-            this.locCnt[index]++
-            if(this.locAuthor[index].indexOf(name) === -1){
-              this.locAuthor[index].push(name)
-            }
-          }
-        })
-      })
-    })
     let colorRuler = ['#ffc29b','#ffbd93','#ffb68a','#ffb081','#ffaa78','#ffa46f','#ff9e64','#ff975c','#ff9152','#ff8a47','#ff823d','#ff7b33','#ff7426','#ff6b17','#ff6300']
     let min = this.locCnt.reduce((x,y)=>x<y?x:y)
     let max = this.locCnt.reduce((x,y)=>x>y?x:y)
@@ -316,6 +358,11 @@ export default class MapView extends React.Component {
       .clamp(true)
       .domain(domain)
       .range(colorRuler)
+    let circleRadius = d3
+      .scaleLinear()
+      .clamp(true)
+      .domain([min, max])
+      .range([3,8])
 
     let defs = svg.append("defs")
 
@@ -339,29 +386,31 @@ export default class MapView extends React.Component {
     this.locList.forEach(loc=>{
       drawLocPoint(loc)
     })
-    console.log(this.locAuthor)
-  }
+    
+    let framework = svg.append('g')
+      .attr('fill', '#f3f8f1')
+      .attr("fill-rule","evenodd")
+    let f_cx = 500, f_cy = 300, f_r = 295
+    framework.append('path')
+      .attr('d', `M 0 0 L ${width} 0 L ${width} ${height} L 0 ${height} z M ${f_cx} ${f_cy-f_r} A ${f_r} ${f_r} 0 0 1 ${f_cx} ${f_cy+f_r} A ${f_r} ${f_r} 0 0 1 ${f_cx} ${f_cy-f_r} z`)
+    framework.append('circle')
+    .attr('cx', f_cx)
+    .attr('cy', f_cy)
+    .attr('r', f_r)
+    .attr('fill','none')
+    .attr('stroke', '#a2a2a2')
+    .attr('stroke-width', '2')
+    }
 
   componentDidUpdate(){
     let author = this.props.author
     d3.selectAll('.route')
-    .attr('opacity',0)
-    if(author !== 'none'){
-      for(let i = 0, len = pathList.length; i < len; i++){
-        let name = pathList[i].name    
-        if(name === author['姓名']){
-          let route_color = author['派别'] === '豪放派' ? 'orange' : 'black'
-          pathList[i].path.forEach((path, j)=>{
-            let route_id = name + j
-            this.hlRoute(route_id)
-          })
-          break          
-        }
-      }
-    }
+      .attr('visibility', 'hidden')   
     if(this.state.authorValue.length === 0){ 
       d3.selectAll('.point')
       .attr('visibility', 'visible')
+      .style('fill', locClr_f)
+      .style('stroke', locClr_s)
       sStore.setAuthorsStory([])
     }
     else{
@@ -381,6 +430,8 @@ export default class MapView extends React.Component {
                 if(children[j].value === author){
                   d3.selectAll(`.${children[j].title}`)
                   .attr('visibility', 'visible')
+                  .style('fill', locClr_f)
+                  .style('stroke', locClr_s)
                   authors.push(children[j].title)
                   break
                 }
@@ -390,6 +441,8 @@ export default class MapView extends React.Component {
               for(let j = 0; j < len; j++){
                 d3.selectAll(`.${children[j].title}`)
                 .attr('visibility', 'visible')
+                .style('fill', locClr_f)
+                .style('stroke', locClr_s)
                 authors.push(children[j].title)
               }
             }
@@ -397,17 +450,82 @@ export default class MapView extends React.Component {
           }
         }
       })
+      this.selectedAuthors = authors
       sStore.setAuthorsStory(authors)
+    }
+    if(author !== 'none'){
+      d3.selectAll('.point')
+      .attr('visibility','hidden')
+      for(let i = 0, len = pathList.length; i < len; i++){
+        let name = pathList[i].name    
+        if(name === author['姓名']){
+          let paibie = this.author_info[name]['派别']
+          let clr_f = paibie === '豪放派' ? 'rgba(185,120,111,0.9)' : 'rgba(132,143,160,80)'
+          let clr_s = paibie === '豪放派' ? 'rgba(178,110,100,1.0)' : 'rgba(116,131,154,1.0)'
+          d3.selectAll('.'+name)
+          .attr('visibility','visible')
+          .style('fill', clr_f)
+          .style('stroke', clr_s)
+          pathList[i].path.forEach((path, j)=>{
+            let route_id = name + j
+            this.hlRoute(route_id)
+
+          })
+          break          
+        }
+      }
     }
   }
   render() {
+
+    let geo_path = map.features.map((m,i)=>{
+      return(
+        <path
+          key = {i}
+          className = "geo_path"
+         />
+      )
+    })
+    
+    pathList.forEach((author)=>{
+      let name = author.name
+      author.path.forEach((path)=>{
+        path.route.forEach((loc)=>{
+          let index = this.locList.indexOf(loc)
+          if(index === -1){
+            this.locList.push(loc)
+            this.locCnt.push(1)
+            this.locAuthor.push([name])
+          }
+          else {
+            this.locCnt[index]++
+            if(this.locAuthor[index].indexOf(name) === -1){
+              this.locAuthor[index].push(name)
+            }
+          }
+        })
+      })
+    })
+
+    let dots = this.locList.map((loc,i)=>{
+      return(
+        <Tooltip
+          key = {i} 
+          title = {loc}
+        >
+          <circle 
+            id = {"dot_"+loc}
+          />
+        </Tooltip>
+      )
+    })
     const tProps = {
       treeData: this.treeData,
       value: this.state.authorValue,
       onChange: this.onSelectorChange,
       treeCheckable: true,
       showCheckedStrategy: SHOW_PARENT,
-      searchPlaceholder: '筛选词人',
+      searchPlaceholder: this.props.isZh? '筛选词人' : 'select poets',
       style: {
         position: 'absolute',
         left: '70%',
@@ -421,26 +539,69 @@ export default class MapView extends React.Component {
         position: "relative" 
       }}>
       <TreeSelect {...tProps} />
+
       <div style = {{
-        position: 'relative',
+        position: 'absolute',
         width: '200px',
-        left: '-20%',
-        zIndex: 0,
+        top: '-20%',
+        left: '0%',
+        zIndex: 1,
         }}>
-        <Map width={this.props.width*0.15} height={this.props.height}/>
+        <Nanhai width={this.props.width*0.15} height={this.props.height}/>
       </div>
+
       <div
         className="map-view"
         ref={ref => {
         this.container = ref;
         }}
         style={{
-        position: "relative",
-        top: -this.props.height,
         width: this.props.width,
         height: this.props.height,
         zIndex: 100,
         }}>
+        <svg>
+          <g>
+          {geo_path}
+          </g>
+          <g>
+          {dots}
+          </g>
+        </svg>
+      </div>
+      <div style = {{
+        pointerEvents: 'none',
+        position: 'absolute',
+        width: '200px',
+        top: '0.0%',
+        left: '22.0%',
+        zIndex: 1,
+        }}>
+        <Song0 width={this.props.width*0.560} height={this.props.height}/>
+      </div>
+      <div style = {{
+        pointerEvents: 'none',
+        position: 'absolute',
+        width: '50px',
+        top: '40.8%',
+        left: '34.3%',
+        zIndex: 1,
+        }}>
+        <Song1 width={this.props.width*0.068} height={this.props.height}/>
+      </div>
+      <div style = {{
+        pointerEvents: 'none',
+        position: 'absolute',
+        width: '50px',
+        top: '32.0%',
+        left: '36.0%',
+        zIndex: 1,
+        fontFamily: 'W9',
+        fontSize: '50px',
+        fontWeight: 'bold',
+        color: 'black'
+        }}>
+        宋
       </div>
       </div>
     )

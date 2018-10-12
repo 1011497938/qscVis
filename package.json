@@ -8,10 +8,10 @@
         "dev-build": "webpack --config webpack.config.dev.js",
         "build": "webpack --config webpack.config.js",
         "start": "webpack-dev-server --config webpack.config.dev.js --color --progress --hot",
-        "predeploy": "npm run dev-build",
+        "predeploy": "npm run build",
         "deploy": "gh-pages -d dist"
     },
-    "homepage": "http://1011497938.github.io/qscVis",
+    "homepage": "http://127.0.0.1:4000",
     "author": "vag",
     "license": "ISC",
     "devDependencies": {

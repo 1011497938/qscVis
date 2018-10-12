@@ -44,11 +44,11 @@ export default class ObjectLine extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            width: 1920,
-            height: 900,
+            width: 5000,
+            height: 1900,
             selectedPoet: "",
             selectedLink: ["", ""],
-            imageRaduis: 27,
+            imageRaduis: 70,
             selectedImage: "",
             showImageList: {}
         }
@@ -133,7 +133,7 @@ export default class ObjectLine extends Component {
 
         const pie = d3.pie();
     
-        const outerRadius = this.state.imageRaduis + 4
+        const outerRadius = this.state.imageRaduis + 12
         const innerRadius = 0
         const arc = d3.arc()
                     .innerRadius(innerRadius)
@@ -278,7 +278,7 @@ export default class ObjectLine extends Component {
                     links[j].source.x -= links.length/2 - hfNum * 3
                 }else{
                     links[j].source.x -= links.length/2 - wyNum * 3
-                    links[j].source.y += 24;
+                    links[j].source.y += 48;
                 }
      
                 //放置意向的图
@@ -287,8 +287,8 @@ export default class ObjectLine extends Component {
                     let thisImg = document.getElementById("objectLine_img_" + targetName)
                     if (thisImg) {
                         thisImg.style.zIndex = 1
-                        thisImg.style.top = links[j].target.y + 1 + "px"
-                        thisImg.style.left = links[j].target.x + 20 + "px"      
+                        thisImg.style.top = links[j].target.y + -42 + "px"
+                        thisImg.style.left = links[j].target.x + -22 + "px"      
                     }
 
                     thisImg.addEventListener("mouseenter", function(event){
@@ -370,7 +370,7 @@ export default class ObjectLine extends Component {
                     return "c-" + d.id
                 })
                 .attr("r", function (d) {
-                    return d.children ? 6 : 0;
+                    return d.children ? 20 : 0;
                 })
                 .on("mouseover", function (d, i) {
                     let name = d.id.split(",")[0]

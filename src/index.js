@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom'; 
 import { AppContainer } from 'react-hot-loader';
-import getRouter from 'router/router';
+import getRouter from 'router/router_b';
 import './css/index.css'
 /*初始化*/
 renderWithHotReload(getRouter());

@@ -24,8 +24,8 @@ export default class StoryView extends React.Component {
   }
 
   static defaultProps = {
-    width: 1470,
-    height: 400
+    width: 5270,
+    height: 1800
   }
 
   getAuthorInfo() {
@@ -92,7 +92,7 @@ export default class StoryView extends React.Component {
             .scale(xScale)
             .tickValues([960,1021,1081,1128,1165,1208,1279])
         )
-        
+        .attr('font-size', '40px')
     let yAxis = svg.append('g')
         .attr('class', 'yAxis')
         .style('stroke-width','2px')
@@ -101,6 +101,7 @@ export default class StoryView extends React.Component {
             .scale(yScale)
             .tickValues([min_ci_cnt, max_ci_cnt])
         )
+        .attr('font-size', '40px')
     
     let basicLine = d3
         .line()
@@ -125,6 +126,7 @@ export default class StoryView extends React.Component {
             .attr("x",x1*0.5+x2*0.5-30)
             .attr("y",height*0.04)
             .attr('fill','#fff')
+            .attr('font-size', '60px')
             .text(i)
     }
 
@@ -149,14 +151,14 @@ export default class StoryView extends React.Component {
                 svg.append('text')
                 .attr("x",xScale(x0)*0.5+xScale(x1)*0.5-emperor0.length*5)
                 .attr("y", h_year - 4)
-                .attr('font-size', 10)
+                .attr('font-size', 50)
                 .attr('fill','#fff')
                 .text(emperor0)
                 .append('title').text(()=>(x0 + '~' + x1))
                 svg.append('text')
                 .attr("x",xScale(x0)*0.5+xScale(x1)*0.5-title0.length*5)
-                .attr("y",h_year + 10)
-                .attr('font-size', 10)
+                .attr("y",h_year + 60)
+                .attr('font-size', 50)
                 .attr('fill','#fff')
                 .text(title0)
                 .append('title').text(()=>(x0 + '~' + x1))
@@ -165,7 +167,7 @@ export default class StoryView extends React.Component {
                 svg.append('text')
                 .attr("x",xScale(x0)*0.5+xScale(x1-1)*0.5-'...'.length*1.6)
                 .attr("y", h_year + 3)
-                .attr('font-size', 20)
+                .attr('font-size', '60px')
                 .attr('fill','#fff')
                 .text('...')
                 .append('title').text(()=>(emperor0 + '/' + title0 + '\n' + x0 + '~' + x1))
@@ -187,13 +189,14 @@ export default class StoryView extends React.Component {
         .attr("x",xScale(x0)*0.5+xScale(x1)*0.5-emperor0.length*5)
         .attr("y",h_year - 4)
         .attr('fill','#fff')
+        .attr('font-size', '60px')
         .text(emperor0)
         .append('title').text(()=>(x0 + '~' + x1))
 
         svg.append('text')
         .attr("x",xScale(x0)*0.5+xScale(x1)*0.5-title0.length*5)
         .attr("y",h_year + 10)
-        .attr('font-size', 10)
+        .attr('font-size', '60px')
         .attr('fill','#fff')
         .text(title0)
         .append('title').text(()=>(x0 + '~' + x1))
@@ -203,7 +206,7 @@ export default class StoryView extends React.Component {
         svg.append('text')
         .attr("x",xScale(x0)*0.5+xScale(x1+1)*0.5-'...'.length*1.6)
         .attr("y", h_year + 3)
-        .attr('font-size', 20)
+        .attr('font-size', '60px')
         .attr('fill','#fff')
         .text('...')
         .append('title').text(()=>(emperor0 + '/' + title0 + '\n' + x0 + '~' + x1))
@@ -235,7 +238,7 @@ export default class StoryView extends React.Component {
                 .append('text')
                 .style('pointer-events','none')
                 .style('font-family','W5')
-                .style('font-size','14px')
+                .style('font-size','50px')
                 .style('font-weight', 'bold')
                 .attr("class", "event")
                 .attr("x", +circle.attr("cx") + 20)
@@ -253,7 +256,7 @@ export default class StoryView extends React.Component {
                 .append('text')
                 .style('pointer-events','none')
                 .style('font-family','W5')
-                .style('font-size','12px')
+                .style('font-size','50px')
                 .style('font-weight', 'bold')
                 .attr("class", "event")
                 .attr("x", +circle.attr("cx") + 20)
@@ -307,7 +310,7 @@ export default class StoryView extends React.Component {
                 .append('text')
                 .style('pointer-events','none')
                 .style('font-family','W5')
-                .style('font-size','14px')
+                .style('font-size','50px')
                 .style('font-weight', 'bold')
                 .attr("class", "event")
                 .attr("x", +circle.attr("cx") - 5 - 14 * time.length)
@@ -326,7 +329,7 @@ export default class StoryView extends React.Component {
                 .append('text')
                 .style('pointer-events','none')
                 .style('font-family','W5')
-                .style('font-size','12px')
+                .style('font-size','50px')
                 .style('font-weight', 'bold')
                 .attr("class", "event")
                 .attr("x", +circle.attr("cx") - 20 - 12 * len)
@@ -512,7 +515,7 @@ export default class StoryView extends React.Component {
             .attr('d', basicLine(life_line))
             .attr('class','path path_'+author['姓名'])
             .attr('stroke', stroke_color)
-            .attr('stroke-width', 4)
+            .attr('stroke-width', 10)
             .attr('stroke-linecap', "round")
             .attr('opacity', 1)
             .attr('fill', 'none')
@@ -520,18 +523,18 @@ export default class StoryView extends React.Component {
         d3.select('#story_line_'+author['姓名'])
             .attr('d', basicLine(life_line))
             .attr('stroke', stroke_color)
-            .attr('stroke-width', 12)
+            .attr('stroke-width', 22)
             .attr('stroke-linecap', "round")
             .attr('opacity', 0)
             .attr('fill', 'none')
             .on('mouseover', ()=>{ 
                 d3.selectAll('.path')
                 .attr('opacity', 0.1) 
-                .attr('stroke-width', 4)
+                .attr('stroke-width', 10)
                 // .style("filter","") 
                 path
                 .attr('opacity', 1)
-                .attr('stroke-width', 6)
+                .attr('stroke-width', 16)
                 // .style("filter","url(#glow)")
                 sStore.setAuthor(author)
                 let tmp = d3.select('.y_'+author['姓名'])
@@ -555,7 +558,7 @@ export default class StoryView extends React.Component {
                     .duration(500)
                 )
                 .attr('opacity', 1)
-                .attr('stroke-width', 4)
+                .attr('stroke-width', 10)
                 // .style("filter","")
                 sStore.setAuthor('none')
                 let tmp = d3.select('.y_'+author['姓名'])

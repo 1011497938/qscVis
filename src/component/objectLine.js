@@ -45,7 +45,7 @@ export default class ObjectLine extends Component {
         super(props)
         this.state = {
             width: 5000,
-            height: 1900,
+            height: 2000,
             selectedPoet: "",
             selectedLink: ["", ""],
             imageRaduis: 70,
@@ -235,11 +235,11 @@ export default class ObjectLine extends Component {
             .append("svg")
             .attr('width', width)
             .attr('height', height)
-        var g = this.svg.append("g").attr("transform", "translate(40,40)").attr('id', 'objectLine_g');
+        var g = this.svg.append("g").attr("transform", "translate(40,100)").attr('id', 'objectLine_g');
 
         //定义数据转换函数  
         var tree = d3.tree()
-            .size([width-80, height *3/4/2]);
+            .size([width-80, height *3/4/2+70]);
 
         //设置簇布局
         var stratify = d3.stratify()
@@ -275,10 +275,10 @@ export default class ObjectLine extends Component {
             for (var j = 0; j < links.length; j++) {
                 // 诗人分类排两排
                 if(poet_class[poetName]==="豪放派"){
-                    links[j].source.x -= links.length/2 - hfNum * 3
+                    links[j].source.x -= links.length/2 - hfNum * 6 + 10
                 }else{
-                    links[j].source.x -= links.length/2 - wyNum * 3
-                    links[j].source.y += 48;
+                    links[j].source.x -= links.length/2 - wyNum * 6 + 10
+                    links[j].source.y += 55;
                 }
      
                 //放置意向的图
@@ -329,13 +329,13 @@ export default class ObjectLine extends Component {
                 .style("transition-property", "stroke-opacity")
                 .style("transition-duration", "0.3s")
                 .style("stroke-width", function (d) {
-                    let width = d.target.data.imageFreq[1] / 15
+                    let width = d.target.data.imageFreq[1] / 5
                     if (width == 0)
                         return "0px"
                     else if (width < 1)
                         return "1px"
                     else
-                        return width < 18 ? width : 18 + "px"
+                        return width < 40 ? width : 40 + "px"
                 })
                 .attr("d", d3.linkVertical()
                     .x(function (d) {
@@ -406,12 +406,13 @@ export default class ObjectLine extends Component {
 
             node.append("text")
                 .attr("dy", 3)
-                .attr("font-size", 20)
+                .attr("dx", 15)
+                .attr("font-size", 50)
                 .attr("y", function(d){
                     if(d.children && poet_class[d.id]==="婉约派")
-                        return 30
+                        return 80
                     else
-                        return -20
+                        return -60
                 })
                 .attr("x", 30)
                 .style("text-anchor", "end")

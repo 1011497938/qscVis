@@ -32,8 +32,8 @@ export default class CiCloud extends React.Component {
   }
 
   static defaultProps = {
-    width: 1000,
-    height: 600,
+    width: 1500,
+    height: 900,
   }
 
   onRadioChange = (e) => {
@@ -63,8 +63,8 @@ export default class CiCloud extends React.Component {
     }
     const options = {
         fontFamily: 'W9',
-        minFontSize: 30 / cnt, 
-        maxFontSize: 100 / cnt,    
+        minFontSize: 40 / cnt, 
+        maxFontSize: 130 / cnt,    
         tooltip: {
             show: true,
             formatter: function(item) {
@@ -129,7 +129,7 @@ export default class CiCloud extends React.Component {
       text.innerHTML = content
       text.style.fontFamily = 'W5'
       text.style.fontWeight = 'bold'
-      text.style.fontSize = '15px'
+      text.style.fontSize = '45px'
       text.style.position = 'absolute'
       text.style.marginLeft = '45%'
       text.style.marginBottom = '-8%'
@@ -176,15 +176,15 @@ export default class CiCloud extends React.Component {
           className="radio"
           style = {{
             position:'relative',
-            top: '10px',
-            left: '650px',
+            top: '-10px',
+            left: '574px',
             fontFamily: 'W5',
-            fontSize: '14px',
+            fontSize: '60px',
           }}> 
-        <RadioGroup onChange={this.onRadioChange} value={this.state.value}>
-          <Radio value={0}>{this.props.isZh? '全本' : 'All'}&nbsp;&nbsp;</Radio>
-          <Radio value={1}>{this.props.isZh? '按词风' : 'Style'}&nbsp;&nbsp;</Radio>
-          <Radio value={2}>{this.props.isZh? '按年代' : 'Time'}</Radio>
+        <RadioGroup onChange={this.onRadioChange} value={this.state.value}  size="large">
+          <Radio value={0}><span style={{fontSize: '40px'}}>{this.props.isZh? '全本' : 'All'}&nbsp;&nbsp;</span></Radio>
+          <Radio value={1}><span style={{fontSize: '40px'}}>{this.props.isZh? '按词风' : 'Style'}&nbsp;&nbsp;</span></Radio>
+          <Radio value={2}><span style={{fontSize: '40px'}}>{this.props.isZh? '按年代' : 'Time'}</span></Radio>
         </RadioGroup>
         </div>    
       </div>

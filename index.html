@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" style="overflow-x: hidden;">
+<head>
+    <style type="text/css">
+        @font-face {  
+            font-family: 'W5';  
+            src: url('./font/hkstW5\(P\).eot'); /* IE9 兼容模式 */
+            src: url('./font/hkstW5\(P\).eot?#font-spider') format('embedded-opentype'), /* IE6-IE8 */
+                    url('./font/hkstW5\(P\).woff') format('woff'), /* 现代浏览器 */
+                    url('./font/hkstW5\(P\).ttf')  format('truetype'), /* Safari, Android, iOS */
+                    url('./font/hkstW5\(P\).svg#grablau') format('svg'); /* Legacy iOS */
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {  
+            font-family: 'W7';  
+            src: url('./font/hkstW7.eot'); /* IE9 兼容模式 */
+            src: url('./font/hkstW7.eot?#font-spider') format('embedded-opentype'), /* IE6-IE8 */
+                    url('./font/hkstW7.woff') format('woff'), /* 现代浏览器 */
+                    url('./font/hkstW7.ttf')  format('truetype'), /* Safari, Android, iOS */
+                    url('./font/hkstW7.svg#grablau') format('svg'); /* Legacy iOS */
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {  
+            font-family: 'W9';  
+            src: url('./font/hkbtsW9\(P\).eot'); /* IE9 兼容模式 */
+            src: url('./font/hkbtsW9\(P\).eot?#font-spider') format('embedded-opentype'), /* IE6-IE8 */
+                    url('./font/hkbtsW9\(P\).woff') format('woff'), /* 现代浏览器 */
+                    url('./font/hkbtsW9\(P\).ttf')  format('truetype'), /* Safari, Android, iOS */
+                    url('./font/hkbtsW9\(P\).svg#grablau') format('svg'); /* Legacy iOS */
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+    <script>
+        var initial_scale = parseInt(window.screen.availWidth) / 1920;
+        document.write('<meta name="viewport" content="width=device-width, initial-scale='+initial_scale+', maximum-scale='+initial_scale+', minimum-scale='+initial_scale+', user-scalable=no">');
+    </script>
+    <title>宋词可视化</title>
+</head>
+
+<body style="margin: 0;overflow-x:hidden;overflow-y:auto;position: fixed;">
+    <div id="app" style = "background: #f3f8f1;overflow-x: hidden;"></div>
+<script type="text/javascript">
+    var script = document.createElement('script');
+        script.type = "text/javascript";
+    if(parseInt(window.screen.availWidth) > parseInt(window.screen.availHeight)) {
+        script.src = "./index.bundle.js"
+    }
+    else{
+        script.src = "./mobile.bundle.js";
+        document.body.style.overflowX='hidden';
+    }
+    document.body.appendChild(script);
+
+</script>
+<div style="display:none">
+    <div id="fwl">010020050640000000000000011200000000000000</div>
+    <script type="text/javascript" src=http://webd.home.news.cn/webdig.js?z=1 "></script>
+    <script type="text/javascript ">
+        wd_paramtracker("_wdxid=010020050640000000000000011200000000000000 ")
+    </script>
+    <noscript><img src="http://webd.home.news.cn/1.gif?z=1&_wdxid=010020050640000000000000011200000000000000 " border="0 " /></noscript>
+</div>
+<div style="display: none;">
+    <div class="share-img " style="width: 0;height: 0;overflow: hidden; "><img src="images/fenxiang.jpg "></div>
+    <p class="share-title " style="height:0;overflow: hidden;width: 0; "></p>
+    <p class="share-substr " style="height:0;overflow: hidden;width: 0; "></p> 
+</div>
+<script type="text/javascript " src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js "></script>
+<script type="text/javascript " src="http://www.xinhuanet.com/global/public/wxShare.js "></script>
+</body>
+</html>

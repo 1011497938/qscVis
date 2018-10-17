@@ -12,8 +12,8 @@ const ofs_yx = {
     '酒':15,
     '云':-30,
     '月':-20,
-    '水':40,
-    '楼':-4,
+    '水':70,
+    '楼':10,
     '梧桐':-14,
     '菊':-7,
     '兰':25,
@@ -39,8 +39,8 @@ export default class SonicView extends React.Component {
 	}
 
 	static defaultProps = {
-		width: 1500,
-		height: 1000,
+		width: 4000,
+		height: 1700,
 		text: ''
     }
 
@@ -68,7 +68,7 @@ export default class SonicView extends React.Component {
     paintLine(data, index) {
         let svg = d3.select(this.container).select("#sv_svg");
         let tl = (this.props.width-400)/data["text"].length;
-        let idle_x = 20>tl ? tl : 20, idle_y=350, line_height = 4, base_y = index*idle_y+250;
+        let idle_x = 20>tl ? tl : 20, idle_y=400, line_height = 5, base_y = index*idle_y+250-50;
         let mp3dom = document.getElementById("sv_wav_"+index);
         let wav = d3.select("#sv_wav_"+index)
         let a = AUDIOS[this.state.dataOfCipai[this.state.selectedCipai]][index][data["qupai"]]
@@ -112,6 +112,7 @@ export default class SonicView extends React.Component {
             })
             let sep_2 = pz.slice(j,pz.length-1).indexOf(-1) + j
 
+            // 播放音频
             mp3dom.currentTime = time[pos]
             mp3dom.play()
             this.audio_pause = setTimeout(()=>{
@@ -124,6 +125,7 @@ export default class SonicView extends React.Component {
             let temp = data["text"].slice(2,data["text"].length-1).indexOf('/')+2
             let huanhang = temp <= j
             if(sep_1-temp === -1) sep_1 +=1
+
             d3.select(this.container).select("#sv_svg")
             .append("rect")
             .attr("id","rythm_line")
@@ -143,8 +145,8 @@ export default class SonicView extends React.Component {
             d3.select(this.container).select("#sv_svg")
             .append("rect")
             .attr("id","rythm_text")
-            .attr("width",20)
-            .attr("height",20)
+            .attr("width",20*2.2)
+            .attr("height",20*2.2)
             .attr("fill","#f3f8f1")
             .attr("opacity", 0.5)
             .attr("x",huanhang ? (sep_1-temp)*18+base_x : sep_1*18+base_x)
@@ -165,17 +167,19 @@ export default class SonicView extends React.Component {
             text_ci.push(temp.substr(0, k));
             temp = temp.substr(k+1);
         }
+
         svg.append("text")
             .attr("x", function(d){
                 return base_x;
             })
             .attr("y", function(d){
-                return base_y - 200;
+                return base_y - 150;
             })
-            .attr("font-size", 20)
+            .attr("font-size", 20*2)
             .attr("font-weight", 'bold')
             .attr("font-family", "W5")
             .text(this.state.dataOfCipai[this.state.selectedCipai]+(" ("+data["qupai"]+")"));
+
         svg.selectAll("._sonicviewtext"+index)
             .data(text_ci)
             .enter()
@@ -184,9 +188,9 @@ export default class SonicView extends React.Component {
                 return base_x;
             })
             .attr("y", function(d,j){
-                return base_y - 200 + 40*(j+1) + 10;
+                return base_y - 130 + 40*(j+1) + 10;
             })
-            .attr("font-size", 18)
+            .attr("font-size", 18*2)
             .attr("font-weight", 'bold')
             .attr("font-family", "W5")
             .text((d) => d);
@@ -203,15 +207,17 @@ export default class SonicView extends React.Component {
         }
         let pz = data["PZlist"]
 
+        // 放置意向图片的位置
         keysetYX.map((d, i) => {
             let ofs_y = ofs_yx[yx[''+d]]
             ofs_y = ofs_y ? ofs_y : 0
             let ele = document.querySelector("#_sonicviewimageinner"+index+i)
             ele.style.position = 'absolute'
-            ele.style.top = ofs_y + base_y-60 + 'px'
-            ele.style.left = d*idle_x+base_x - 30 + ofs_x + 'px'
+            ele.style.top = ofs_y + base_y-60+20+ 'px'
+            ele.style.left = d*idle_x*1.5+base_x - 30 + (ofs_x)*2.2 + 'px'
         })
 
+        // console.log(data["PZlist"])   语调
         svg
         .append("g")
         .attr("transform", 'translate('+ofs_x+',0)')
@@ -221,20 +227,20 @@ export default class SonicView extends React.Component {
         .append("rect")
         .attr("width",function(d,j){
             if(d==1||d==2)
-                return idle_x;
+                return idle_x*1.5;
             else if(d==0)
-                return idle_x*0.8;
+                return idle_x*0.8*1.5;
             else
                 return 0;
         })
         .attr("height",function(d,j){
-            return line_height;
+            return line_height*1.5;
         })
         .attr("x",function(d,j){
-             return j*idle_x+base_x;
+             return j*idle_x*1.5+base_x;
         })
         .attr("y",function(d,j){
-             return base_y;
+             return base_y+70;
         })
         .attr("fill",function(d,j){
             if(keysetQX.indexOf(j) > -1){
@@ -325,11 +331,13 @@ export default class SonicView extends React.Component {
             <div>
             <Select
                 showSearch
+                size='large'
                 style={{
                     "position":'relative',
-                    "width": '120px',
-                    "top":'10px',
-                    "left": '300px'
+                    "width": '290px',
+                    "top":'-50px',
+                    "left": '1600px',
+                    "padding": 0
                 }}
                 placeholder= {this.state.isZh?"选择词牌":"Select"}
                 optionFilterProp="children"
@@ -340,7 +348,7 @@ export default class SonicView extends React.Component {
                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
                 {this.state.dataOfCipai.map((d, i) => {
-                    return <Option value={i} key={i}>{d}</Option>;
+                    return <Option value={i} key={i}><span style={{fontSize:'40px'}}>{d}</span></Option>;
                 })}
             </Select>
             <div 
@@ -361,6 +369,7 @@ export default class SonicView extends React.Component {
                         "opacity": 0.75, 
                     }}
                 >
+                    {/* 意向图片 */}
                     {this.state.data.map((d0, i0) => {
                         let data = [];
                         for(let key in d0["YXlist"]){
@@ -369,13 +378,14 @@ export default class SonicView extends React.Component {
                         let res = (<div key={i0}>
                                 {data.map((YX, j) => {
                                     return (
-                                        <img style = {{pointerEvents: 'none'}} id = {"_sonicviewimageinner"+i0+j} key={j} src={require('../../res/sonic-images/' + YX +'.png')} />
+                                        <img style = {{width:'100px', height:'100px',pointerEvents: 'none'}} id = {"_sonicviewimageinner"+i0+j} key={j} src={require('../../res/sonic-images/' + YX +'.png')} />
                                     )
                                 })}</div>)
                         return res;
                     })} 
                 </div>
                 {
+                    // 播放按钮
                     this.state.data.map((d,i)=>(
                     <div>
                         <audio id={"sv_wav_"+i} src={""} preload="auto">
@@ -386,10 +396,10 @@ export default class SonicView extends React.Component {
                             style={{
                                 position:"absolute",
                                 left: "10%",
-                                top: 236 + 350*i + "px",
+                                top: 236 + 400*i + "px",
                             }}>
                             
-                            <Button key={i} style={{backgroundColor:"#666", borderColor:"#666"}} type="primary" shape="circle" icon={this.state.isPlay[i]?"caret-right":"pause"} onClick={this.state.isPlay[i]?()=>{this.playMusic.bind(this)(i)}:()=>{this.pauseMusic.bind(this)(i)}}></Button>  
+                            <Button key={i} style={{left:'-255px', top:'10px', width:'50px', height:'50px', backgroundColor:"#666", borderColor:"#666"}} type="primary" shape="circle" icon={this.state.isPlay[i]?"caret-right":"pause"} onClick={this.state.isPlay[i]?()=>{this.playMusic.bind(this)(i)}:()=>{this.pauseMusic.bind(this)(i)}}></Button>  
                         </div>
                     </div>
                     ))

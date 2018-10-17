@@ -5,7 +5,7 @@ import MapView from 'component/mapView';
 import StoryView from 'component/storyView';
 import SonicView from 'component/sonicView';
 import FreqLine from 'component/FreqLine';
-
+import CiPaiBarChart from 'component/ciPaiBarChart';
 
 import sStore from 'store/sstore';
 import { observer } from "mobx-react";
@@ -229,11 +229,34 @@ export default class BigWindows extends Component {
                     id="map-view"
                     style={{
                         position:'absolute',
-                        top: '150px',
-                        left:'500px'
+                        top: '550px',
+                        left:'5800px'
                     }}
                     >
-                    <MapView author={sStore.author} isZh={this.state.isZh}/>
+                    <MapView author={sStore.author}/>
+                </div>
+
+
+                <div 
+                    id="sonicView"
+                    style={{
+                        position:'absolute',
+                        top:'1350px',
+                        left: '1800px'
+                    }}
+                >
+                    <SonicView/>
+                </div>
+
+                <div
+                    id="ciPai"
+                    style={{
+                        position:'absolute',
+                        top:'2420px',
+                        left: '4100px'
+                    }}
+                >
+                    <CiPaiBarChart/>
                 </div>
             </div>  
         )

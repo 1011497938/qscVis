@@ -12,10 +12,12 @@ import sStore from 'store/sstore';
 import { TreeSelect, Tooltip } from 'antd';
 const SHOW_PARENT = TreeSelect.SHOW_PARENT;
 
-const scale = 1200, t_x = 0.45, t_y = 0.20
+const amplify = 3
+const scale = 1200*amplify, t_x = 0.45, t_y = 0.20
 const locClr_s = 'rgba(55, 57, 93, 1)', locClr_f = 'rgba(87, 90, 139, 0.55)'
 @observer
 export default class MapView extends React.Component {
+
   constructor() {
     super();
     this.state = {
@@ -156,8 +158,8 @@ export default class MapView extends React.Component {
   }
 
   static defaultProps = {
-    width: 800,
-    height: 600,
+    width: 800*amplify,
+    height: 600*amplify,
   }
 
   getAuthorInfo() {
@@ -180,10 +182,11 @@ export default class MapView extends React.Component {
 
   componentDidMount() {
     const height = this.props.height, width = this.props.width    
-
+    console.log(height, width)
     let svg = d3
     .select(this.container)
     .select('svg')
+    .attr("id", 'svg_mapView')
     .attr('width',width)
     .attr('height',height)
 
@@ -240,14 +243,14 @@ export default class MapView extends React.Component {
           .style('pointer-events','none') 
           .attr("cx",pr[0])  
           .attr("cy",pr[1])  
-          .attr("r", circleRadius(this.locCnt[index]))
+          .attr("r", circleRadius(this.locCnt[index])*amplify)
           .style('fill', locClr_f)
           .style('stroke', locClr_s)
   
         svg.select("#dot_"+loc)  
           .attr("cx",pr[0])  
           .attr("cy",pr[1])  
-          .attr("r", circleRadius(this.locCnt[index])+2)
+          .attr("r", circleRadius(this.locCnt[index])*amplify+2)
           .style('opacity', '0')
           .on('mouseover',()=>{
             d3.selectAll('.point')
@@ -388,16 +391,18 @@ export default class MapView extends React.Component {
     })
     
     let framework = svg.append('g')
-      .attr('fill', '#f3f8f1')
+      .attr('fill', 'none')
       .attr("fill-rule","evenodd")
-    let f_cx = 500, f_cy = 300, f_r = 295
+    let f_cx = 500*amplify, f_cy = 300*amplify, f_r = 295*amplify
     framework.append('path')
       .attr('d', `M 0 0 L ${width} 0 L ${width} ${height} L 0 ${height} z M ${f_cx} ${f_cy-f_r} A ${f_r} ${f_r} 0 0 1 ${f_cx} ${f_cy+f_r} A ${f_r} ${f_r} 0 0 1 ${f_cx} ${f_cy-f_r} z`)
     framework.append('circle')
     .attr('cx', f_cx)
     .attr('cy', f_cy)
     .attr('r', f_r)
+    .attr('id', 'map_frame_circle')
     .attr('fill','none')
+    // .attr("transform", 'translate(-300,0)')
     .attr('stroke', '#a2a2a2')
     .attr('stroke-width', '2')
     }
@@ -525,7 +530,7 @@ export default class MapView extends React.Component {
       onChange: this.onSelectorChange,
       treeCheckable: true,
       showCheckedStrategy: SHOW_PARENT,
-      searchPlaceholder: this.props.isZh? '筛选词人' : 'select poets',
+      searchPlaceholder: '筛选词人',
       style: {
         position: 'absolute',
         left: '70%',
@@ -535,20 +540,10 @@ export default class MapView extends React.Component {
     }
     return (
       <div style={{ 
-        width: '1200px',
+        width: this.props.width,
         position: "relative" 
       }}>
       <TreeSelect {...tProps} />
-
-      <div style = {{
-        position: 'absolute',
-        width: '200px',
-        top: '-20%',
-        left: '0%',
-        zIndex: 1,
-        }}>
-        <Nanhai width={this.props.width*0.15} height={this.props.height}/>
-      </div>
 
       <div
         className="map-view"
@@ -574,7 +569,7 @@ export default class MapView extends React.Component {
         position: 'absolute',
         width: '200px',
         top: '0.0%',
-        left: '22.0%',
+        left: '33.0%',  //22%
         zIndex: 1,
         }}>
         <Song0 width={this.props.width*0.560} height={this.props.height}/>
@@ -584,7 +579,7 @@ export default class MapView extends React.Component {
         position: 'absolute',
         width: '50px',
         top: '40.8%',
-        left: '34.3%',
+        left: '45.3%',  //34.3%
         zIndex: 1,
         }}>
         <Song1 width={this.props.width*0.068} height={this.props.height}/>
@@ -594,10 +589,10 @@ export default class MapView extends React.Component {
         position: 'absolute',
         width: '50px',
         top: '32.0%',
-        left: '36.0%',
+        left: '47.0%',  //36%
         zIndex: 1,
         fontFamily: 'W9',
-        fontSize: '50px',
+        fontSize: '200px',
         fontWeight: 'bold',
         color: 'black'
         }}>

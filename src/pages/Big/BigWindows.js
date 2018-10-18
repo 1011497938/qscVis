@@ -6,6 +6,7 @@ import StoryView from 'component/storyView';
 import SonicView from 'component/sonicView';
 import FreqLine from 'component/FreqLine';
 import CiPaiBarChart from 'component/ciPaiBarChart';
+import SurrondMap from 'component/surrondMap';
 
 import sStore from 'store/sstore';
 import { observer } from "mobx-react";
@@ -230,10 +231,11 @@ export default class BigWindows extends Component {
                     style={{
                         position:'absolute',
                         top: '550px',
-                        left:'5800px'
+                        left:'5800px',
                     }}
                     >
                     <MapView author={sStore.author}/>
+                    <SurrondMap author={sStore.author}/>
                 </div>
 
 

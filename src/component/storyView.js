@@ -670,6 +670,7 @@ export default class StoryView extends React.Component {
                     strokeWidth = '2'
                     opacity = '0.6'
                     strokeDasharray = '4 2'
+                    key = {'event_line_vertival_' + i}
                 />
             ) 
         }

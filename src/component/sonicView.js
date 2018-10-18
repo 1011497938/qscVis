@@ -348,7 +348,7 @@ export default class SonicView extends React.Component {
                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
                 {this.state.dataOfCipai.map((d, i) => {
-                    return <Option value={i} key={i}><span style={{fontSize:'40px'}}>{d}</span></Option>;
+                    return <Option value={i} key={'select'+ i}><span style={{fontSize:'40px'}}>{d}</span></Option>;
                 })}
             </Select>
             <div 
@@ -378,7 +378,7 @@ export default class SonicView extends React.Component {
                         let res = (<div key={i0}>
                                 {data.map((YX, j) => {
                                     return (
-                                        <img style = {{width:'100px', height:'100px',pointerEvents: 'none'}} id = {"_sonicviewimageinner"+i0+j} key={j} src={require('../../res/sonic-images/' + YX +'.png')} />
+                                        <img style = {{width:'100px', height:'100px',pointerEvents: 'none'}} id = {"_sonicviewimageinner"+i0+j} key={'img_images' + j} src={require('../../res/sonic-images/' + YX +'.png')} />
                                     )
                                 })}</div>)
                         return res;
@@ -387,7 +387,7 @@ export default class SonicView extends React.Component {
                 {
                     // 播放按钮
                     this.state.data.map((d,i)=>(
-                    <div>
+                    <div key={'sonic_button_' + i}>
                         <audio id={"sv_wav_"+i} src={""} preload="auto">
                             Your browser does not support the audio element.
                         </audio>

@@ -182,7 +182,7 @@ export default class MapView extends React.Component {
 
   componentDidMount() {
     const height = this.props.height, width = this.props.width    
-    console.log(height, width)
+    // console.log(height, width)
     let svg = d3
     .select(this.container)
     .select('svg')
@@ -389,14 +389,18 @@ export default class MapView extends React.Component {
     this.locList.forEach(loc=>{
       drawLocPoint(loc)
     })
-    
+
+
+
     let framework = svg.append('g')
       .attr('fill', 'none')
       .attr("fill-rule","evenodd")
     let f_cx = 500*amplify, f_cy = 300*amplify, f_r = 295*amplify
+    // console.log(f_r);  885
     framework.append('path')
       .attr('d', `M 0 0 L ${width} 0 L ${width} ${height} L 0 ${height} z M ${f_cx} ${f_cy-f_r} A ${f_r} ${f_r} 0 0 1 ${f_cx} ${f_cy+f_r} A ${f_r} ${f_r} 0 0 1 ${f_cx} ${f_cy-f_r} z`)
-    framework.append('circle')
+    
+      framework.append('circle')
     .attr('cx', f_cx)
     .attr('cy', f_cy)
     .attr('r', f_r)
@@ -404,9 +408,14 @@ export default class MapView extends React.Component {
     .attr('fill','none')
     // .attr("transform", 'translate(-300,0)')
     .attr('stroke', '#a2a2a2')
-    .attr('stroke-width', '2')
-    }
+    .attr('stroke-width', 2*amplify)
 
+    // 新增by谭思危
+    
+
+    }
+    
+    
   componentDidUpdate(){
     let author = this.props.author
     d3.selectAll('.route')
@@ -525,6 +534,7 @@ export default class MapView extends React.Component {
       )
     })
     const tProps = {
+      size: 'large',
       treeData: this.treeData,
       value: this.state.authorValue,
       onChange: this.onSelectorChange,
@@ -541,7 +551,8 @@ export default class MapView extends React.Component {
     return (
       <div style={{ 
         width: this.props.width,
-        position: "relative" 
+        position: "absolute",
+        zIndex: '30'
       }}>
       <TreeSelect {...tProps} />
 
@@ -563,6 +574,15 @@ export default class MapView extends React.Component {
           {dots}
           </g>
         </svg>
+      </div>
+      <div style = {{
+        position: 'absolute',
+        width: '300px',
+        top: '1430px',
+        left: '3310px',
+        zIndex: 1,
+        }}>
+        <Nanhai width={500}/>
       </div>
       <div style = {{
         pointerEvents: 'none',

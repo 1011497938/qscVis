@@ -4,7 +4,6 @@ import cipai_poet from '../../data/cipai.json';
 import famous_poet from '../../data/factions_for_authors.json'
 import $ from 'jquery';
 
-
 export default class CiPaiBarChart extends React.Component{
     constructor(){
         super()
@@ -31,7 +30,7 @@ export default class CiPaiBarChart extends React.Component{
             }
         }
 
-        console.log(famous_poet)
+        // console.log(famous_poet)
         let maxWeight = 0, minWeight = 10000
         var tempData = [], upLimit = 100
         for(let poet in data){
@@ -94,12 +93,15 @@ export default class CiPaiBarChart extends React.Component{
             }
         })
         poets = [...haoPoets, ' ', ...wanPoets]
+
+
         // console.log(poets)
         var tempCiPai = []
         cipai.forEach((element)=>{
             tempCiPai.push(element)
         })
         cipai = tempCiPai
+
         cipai = cipai.sort((a,b) =>{
             let aNum = 0;
             let bNum = 0;
@@ -120,19 +122,12 @@ export default class CiPaiBarChart extends React.Component{
                 return 0;
             }
         })
-        
+        cipai = cipai.slice(0,30)
+
         var count = 0
         cipai.forEach((element)=>{
-            cipai_index[element] = count++
-            // console.log(element)
-            // for(let i in cipai_poetArray){
-            //     if (cipai_poetArray[i].label===element) {               
-            //         console.log(cipai_poetArray[i].weight)
-            //         break
-            //     }
-            // }
+            cipai_index[element] = count++      
         })
-        
 
         var width = this.state.width
         var height = this.state.height
@@ -157,7 +152,7 @@ export default class CiPaiBarChart extends React.Component{
         let ofsX = (width - startX)/poets.length
         var scaleY = d3.scaleLinear()
         var fontSize = 30
-        scaleY.domain([0,maxWeight])
+        scaleY.domain([0,maxWeight*0.8])
               .range([0, startY-10])
         
         svg.selectAll(".cipai_poet_name")
@@ -176,7 +171,7 @@ export default class CiPaiBarChart extends React.Component{
         var posY = startY-5
         for(let poet in poets){
             poet = poets[poet]
-            console.log(poet, poets)
+            // console.log(poet, poets)
             let array = data[poet]
             posY = startY-5
             cipai.forEach((element)=>{
@@ -190,11 +185,55 @@ export default class CiPaiBarChart extends React.Component{
                     .attr("x", startX+ofsX*indexX-fontSize/2+5)
                     .attr("y", posY - scaleY(array[element]))
                     .attr("fill",color(colorLinear(cipai_index[element])))
+                    .attr("alt", element)
                     posY -= scaleY(array[element]) + 1      
                 }       
             })
             indexX++
         }
+
+        //坐标轴
+       var axis = d3.axisRight(scaleY.range([startY-10,0])).ticks(2);
+       var gAxis = svg.append("g")
+               .attr("transform", "translate(900, 1)")
+               .attr('class', 'axisBar');
+       // 绘制坐标轴
+       gAxis.call(axis)
+            .attr('font-size', '30px')
+
+
+        //图注
+        var cipaiIndex = 0, noteStartX = 1400, noteStartY=330, noteX, noteY, noteTotalHeight=350
+        const showNum = 10
+        for (let i = 0; i < 2; i++) {
+            noteX = noteStartX  - i * 25
+            noteY = noteStartY
+            for (let j = 0; j < showNum; j++) {
+                const element = cipai[cipaiIndex];
+                const cipai_height = (noteTotalHeight-showNum)/showNum
+
+                svg.append('rect')
+                .attr('class', 'rect_cipai_note')
+                .attr("width", 20)
+                .attr("height", cipai_height)
+                .attr("x", noteX)
+                .attr("y", noteY)
+                .attr("fill",color(colorLinear(cipai_index[element])))
+
+                svg.append('text')
+                .attr('class', 'text_cipai_note')
+                .attr("x", noteX + (i==0?70:-45) -40 )
+                .attr("y", noteY+27)
+                .attr('fill','black')
+                .attr('font-size', '25px')
+                .attr('style', "writing-mode: rl")
+                .text(element)
+
+                cipaiIndex += 1
+                noteY -= cipai_height + 2
+            }
+        }
+            
     }
     render(){
         return(

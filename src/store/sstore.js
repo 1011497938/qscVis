@@ -4,12 +4,14 @@ class SStore {
     @observable author = 'none'
     @action
     setAuthor(author){
-        this.author = author
+        // console.log(author)
+        this.author = author  
     }
     @observable authors_story = []
     @action 
     setAuthorsStory(authors){
         this.authors_story = authors
+        // console.log(authors)  //[]
     }
 }
 
